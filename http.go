@@ -36,8 +36,9 @@ func (request Request) Init() Request {
 var client = http.Client{}
 
 func (request Request) Call() (*http.Response, error) {
-
+	stop := timer(request.Number)
 	res, err := client.Do(&request.Request)
+	stop()
 
 	if err != nil {
 		fmt.Println(res.Status, res.StatusCode)
