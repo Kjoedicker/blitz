@@ -3,10 +3,11 @@ package main
 import (
 	"flag"
 	"fmt"
-	"os"
 )
 
-const DEFAULT_INT = 0
+const (
+	DEFAULT_FILE_PATH = "./test-plan.yml"
+)
 
 func printLogo() {
 	blitzLogo := `
@@ -25,28 +26,10 @@ func printLogo() {
 	fmt.Println(blitzLogo)
 }
 
-func enforceRequired(arguments map[string]*int) {
-	for description, argument := range arguments {
-		if *argument == DEFAULT_INT {
-			fmt.Println("Missing required arguments:")
-			fmt.Println("\t" + description)
-			os.Exit(1)
-		}
-	}
-}
-
-func parseCommandLineArguments() (totalRequests int, interval int) {
-	totalRequestsPtr := flag.Int("totalRequests", DEFAULT_INT, "Total requests to be made")
-	intervalPtr := flag.Int("interval", DEFAULT_INT, "Interval of when requests are made in seconds")
+func parseTestPlanPath() (testPlanFilePath string) {
+	testPlanFilePathPtr := flag.String("test-plan-path", DEFAULT_FILE_PATH, "Test plan path. Defaults to: "+DEFAULT_FILE_PATH)
 
 	flag.Parse()
 
-	arguments := map[string]*int{
-		"Total requests: --totalRequests, -t": totalRequestsPtr,
-		"Interval: --interval, -i":            intervalPtr,
-	}
-
-	enforceRequired(arguments)
-
-	return *totalRequestsPtr, *intervalPtr
+	return *testPlanFilePathPtr
 }
