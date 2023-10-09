@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"net/url"
@@ -41,12 +40,10 @@ func (request Request) Call() (*http.Response, error) {
 	stop()
 
 	if err != nil {
-		fmt.Println(res.Status, res.StatusCode)
+		log.Println(err)
 		return nil, err
 	}
-
-	fmt.Println(res.StatusCode)
-
 	defer res.Body.Close()
+
 	return res, nil
 }
