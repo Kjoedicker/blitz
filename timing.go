@@ -1,16 +1,15 @@
 package main
 
 import (
-	"log"
 	"math"
 	"time"
 )
 
-func timer(identifier int) func() {
+func timer() func() float64 {
 	start := time.Now()
-	return func() {
+	return func() float64 {
 		seconds := time.Since(start).Seconds()
-		log.Printf("Call %d took: %fs \n", identifier, seconds)
+		return seconds
 	}
 }
 
@@ -20,4 +19,11 @@ func HitsPer(totalRequests int, interval int) (HitsPer int) {
 
 func MinutesToSeconds(minutes int) int {
 	return minutes * 60
+}
+
+type TimedChannel chan bool
+
+func (timeChannel TimedChannel) After(duration time.Duration) {
+	time.Sleep(duration)
+	timeChannel <- true
 }
