@@ -41,7 +41,7 @@ func makeSynchronizedRequests(requestStructure Request, hitsPerSecond int) {
 	time.Sleep(time.Second)
 }
 
-func makeRequestsForDuration(requestStructure Request, duration int, hitsPerSecond int) {
+func MakeRequestsForDuration(requestStructure Request, duration int, hitsPerSecond int) {
 
 	done := make(TimedChannel)
 	go done.After(time.Duration(duration) * time.Minute)
