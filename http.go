@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"net/url"
@@ -13,7 +14,24 @@ type Request struct {
 	Headers http.Header
 	Request http.Request
 
-	Number int
+	RequestGroup int
+	Number       int
+	ResponseTime float64
+}
+
+type Requests []Request
+
+func (requests Requests) PrintResults() {
+	for index, request := range requests {
+		if index == 0 {
+			fmt.Println("\nRequest group:", request.RequestGroup)
+		}
+		request.PrintResult()
+	}
+}
+
+func (request Request) PrintResult() {
+	fmt.Printf("Request %d: %f seconds \n", request.Number, request.ResponseTime)
 }
 
 func (request Request) Init() Request {
@@ -34,10 +52,10 @@ func (request Request) Init() Request {
 // be reused thanks to internal caching
 var client = http.Client{}
 
-func (request Request) Call() (*http.Response, error) {
-	stop := timer(request.Number)
+func (request *Request) Call() (*http.Response, error) {
+	stop := timer()
 	res, err := client.Do(&request.Request)
-	stop()
+	request.ResponseTime = stop()
 
 	if err != nil {
 		log.Println(err)
