@@ -1,22 +1,32 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"net/url"
 	"os"
 
 	"gopkg.in/yaml.v3"
 )
 
+type Target struct {
+	Description string              `yaml:"description"`
+	Method      string              `yaml:"method"`
+	Path        string              `yaml:"path"`
+	Headers     map[string][]string `yaml:"headers"`
+	Hits        int                 `yaml:"hits"`
+	Interval    int                 `yaml:"interval"`
+	Duration    int                 `yaml:"duration"`
+}
+
 type TestPlan struct {
-	Host    string `yaml:"host"`
-	Targets []struct {
-		Description string              `yaml:"description"`
-		Method      string              `yaml:"method"`
-		Path        string              `yaml:"path"`
-		Headers     map[string][]string `yaml:"headers"`
-		Hits        int                 `yaml:"hits"`
-		Interval    int                 `yaml:"interval"`
-	} `yaml:"Targets"`
+	Host    string   `yaml:"host"`
+	Targets []Target `yaml:"Targets"`
+}
+
+func (target Target) printDetails() {
+	fmt.Println("\nScenario: " + target.Description)
+	fmt.Printf("%d requests every %d minutes for %d minutes\n", target.Hits, target.Interval, target.Duration)
 }
 
 func loadTestPlan(filePath string) TestPlan {
@@ -33,4 +43,24 @@ func loadTestPlan(filePath string) TestPlan {
 	}
 
 	return *testPlan
+}
+
+func (testPlan TestPlan) begin() {
+	for _, target := range testPlan.Targets {
+		target.printDetails()
+
+		rawUrl, err := url.JoinPath(testPlan.Host, target.Path)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		request := Request{
+			Method:  target.Method,
+			Headers: target.Headers,
+			rawUrl:  rawUrl,
+		}.Init()
+
+		hitsPerSecond := HitsPer(target.Hits, MinutesToSeconds(target.Interval))
+		makeRequestsForDuration(request, target.Duration, hitsPerSecond)
+	}
 }
