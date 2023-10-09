@@ -61,6 +61,6 @@ func (testPlan TestPlan) begin() {
 		}.Init()
 
 		hitsPerSecond := HitsPer(target.Hits, MinutesToSeconds(target.Interval))
-		makeRequestsForDuration(request, target.Duration, hitsPerSecond)
+		MakeRequestsForDuration(request, target.Duration, hitsPerSecond)
 	}
 }
