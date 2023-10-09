@@ -1,0 +1,15 @@
+---
+host: http://localhost:3000
+Targets:
+  - description: 'GET /'
+    method: "GET"
+    path: "/"
+    headers: ~
+    hits: 1000
+    interval: 2
+  - description: 'GET /moo'
+    method: "GET"
+    path: "/"
+    headers: ~
+    hits: 675
+    interval: 1
