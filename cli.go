@@ -8,6 +8,23 @@ import (
 
 const DEFAULT_INT = 0
 
+func printLogo() {
+	blitzLogo := `
+▄▄▄▄   ██▓    ██▄▄▄█████▒███████▒
+▓█████▄▓██▒   ▓██▓  ██▒ ▓▒ ▒ ▒ ▄▀░
+▒██▒ ▄█▒██░   ▒██▒ ▓██░ ▒░ ▒ ▄▀▒░ 
+▒██░█▀ ▒██░   ░██░ ▓██▓ ░  ▄▀▒   ░
+░▓█  ▀█░██████░██░ ▒██▒ ░▒███████▒
+░▒▓███▀░ ▒░▓  ░▓   ▒ ░░  ░▒▒ ▓░▒░▒
+▒░▒   ░░ ░ ▒  ░▒ ░   ░   ░░▒ ▒ ░ ▒
+ ░    ░  ░ ░   ▒ ░ ░     ░ ░ ░ ░ ░
+ ░         ░  ░░           ░ ░    
+	  ░                  ░        
+`
+
+	fmt.Println(blitzLogo)
+}
+
 func enforceRequired(arguments map[string]*int) {
 	for description, argument := range arguments {
 		if *argument == DEFAULT_INT {
