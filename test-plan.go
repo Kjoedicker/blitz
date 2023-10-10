@@ -24,12 +24,12 @@ type TestPlan struct {
 	Targets []Target `yaml:"Targets"`
 }
 
-func (target Target) printDetails() {
+func (target Target) PrintDetails() {
 	fmt.Println("\nScenario: " + target.Description)
 	fmt.Printf("%d requests every %d minutes for %d minutes\n", target.Hits, target.Interval, target.Duration)
 }
 
-func loadTestPlan(filePath string) TestPlan {
+func LoadTestPlan(filePath string) TestPlan {
 	testPlan := &TestPlan{}
 
 	testPlanFile, err := os.ReadFile(filePath)
@@ -45,9 +45,9 @@ func loadTestPlan(filePath string) TestPlan {
 	return *testPlan
 }
 
-func (testPlan TestPlan) begin() {
+func (testPlan TestPlan) Begin() {
 	for _, target := range testPlan.Targets {
-		target.printDetails()
+		target.PrintDetails()
 
 		rawUrl, err := url.JoinPath(testPlan.Host, target.Path)
 		if err != nil {

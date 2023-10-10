@@ -25,5 +25,5 @@ func main() {
 	testPlanPath := ParseTestPlanPath()
 	testPlan := LoadTestPlan(testPlanPath)
 
-	testPlan.begin()
+	testPlan.Begin()
 }
