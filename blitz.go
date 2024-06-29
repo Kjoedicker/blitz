@@ -6,8 +6,13 @@ import (
 )
 
 func trackRequestCount() func() int {
-	totalRequests := 0
+	var totalRequests int
+	var mutex sync.Mutex
+
 	return func() int {
+		mutex.Lock()
+		defer mutex.Unlock()
+
 		totalRequests++
 		return totalRequests
 	}
