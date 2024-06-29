@@ -9,7 +9,7 @@ const (
 )
 
 func ParseTestPlanPath() (testPlanFilePath string) {
-	testPlanFilePathPtr := flag.String("test-plan-path", DEFAULT_FILE_PATH, "Test plan path. Defaults to: "+DEFAULT_FILE_PATH)
+	testPlanFilePathPtr := flag.String("target-path", DEFAULT_FILE_PATH, "Test plan path. Defaults to: "+DEFAULT_FILE_PATH)
 
 	flag.Parse()
 
