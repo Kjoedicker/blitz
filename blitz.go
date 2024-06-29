@@ -28,11 +28,15 @@ func makeSynchronizedRequests(requestStructure Request, hitsPerSecond int) {
 		queue.Add(1)
 
 		go func() {
+			defer queue.Done()
+
 			request := requestStructure
 			request.Number = returnRequestNumber()
 
 			request.Call()
 
+			// This stores the request context at the
+			// index of when it was called.
 			requests[request.Number-1] = request
 
 			queue.Done()
