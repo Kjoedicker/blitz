@@ -15,7 +15,7 @@ type Target struct {
 	Path        string              `yaml:"path"`
 	Headers     map[string][]string `yaml:"headers"`
 	Hits        int                 `yaml:"hits"`
-	Interval    int                 `yaml:"interval"`
+	Interval    string              `yaml:"interval"`
 	Duration    int                 `yaml:"duration"`
 }
 
@@ -26,7 +26,7 @@ type TestPlan struct {
 
 func (target Target) PrintDetails() {
 	fmt.Println("\nScenario: " + target.Description)
-	fmt.Printf("%d requests every %d minutes for %d minutes\n", target.Hits, target.Interval, target.Duration)
+	fmt.Printf("%d requests every %s for %d minutes\n", target.Hits, target.Interval, target.Duration)
 }
 
 func LoadTestPlan(filePath string) TestPlan {
@@ -60,7 +60,11 @@ func (testPlan TestPlan) Begin() {
 			rawUrl:  rawUrl,
 		}.Init()
 
-		hitsPerSecond := HitsPer(target.Hits, MinutesToSeconds(target.Interval))
-		MakeRequestsForDuration(request, target.Duration, hitsPerSecond)
+		intervalBetweenRequests, err := CalculateIntervalBetweenRequests(target.Hits, target.Interval)
+		if err != nil {
+			panic(err)
+		}
+
+		MakeRequestsForDuration(request, target.Hits, intervalBetweenRequests, target.Duration)
 	}
 }
