@@ -18,52 +18,66 @@ func trackRequestCount() func() int {
 	}
 }
 
-func makeSynchronizedRequests(requestStructure Request, hitsPerSecond int) {
+func makeSynchronizedRequests(requestStructure Request, totalHits int, intervalBetweenRequests time.Duration) {
 	queue := sync.WaitGroup{}
 
-	requests := make(Requests, hitsPerSecond)
+	requests := make(Requests, totalHits)
 	returnRequestNumber := trackRequestCount()
+	done := make(chan bool)
+	ticker := time.NewTicker(intervalBetweenRequests)
 
-	for totalRequests := 1; totalRequests <= hitsPerSecond; totalRequests++ {
-		queue.Add(1)
+	for {
+		select {
+		case <-done:
+			queue.Wait()
+			go requests.PrintResults()
+			return
+		case <-ticker.C:
+			queue.Add(1)
 
-		go func() {
-			defer queue.Done()
+			go func() {
+				defer queue.Done()
 
-			request := requestStructure
-			request.Number = returnRequestNumber()
+				request := requestStructure
+				request.Number = returnRequestNumber()
 
-			request.Call()
+				if request.Number >= totalHits+1 {
+					done <- true
+					return
+				}
 
-			// This stores the request context at the
-			// index of when it was called.
-			requests[request.Number-1] = request
+				request.Call()
 
-			queue.Done()
-		}()
+				// This stores the request context at the index of when it was called.
+				// This is useful for later printing the details of the request.
+				requests[request.Number-1] = request
+
+			}()
+		}
 	}
-
-	queue.Wait()
-
-	requests.PrintResults()
-
-	time.Sleep(time.Second)
 }
 
-func MakeRequestsForDuration(requestStructure Request, duration int, hitsPerSecond int) {
-
+func MakeRequestsForDuration(requestStructure Request, totalHits int, intervalBetweenRequests time.Duration, duration int) {
 	done := make(TimedChannel)
 	go done.After(time.Duration(duration) * time.Minute)
 
-	for requestGroup := 0; ; requestGroup++ {
-		request := requestStructure
-		request.RequestGroup = requestGroup
-
+	requestGroup := 1
+	for {
 		select {
 		case <-done:
 			return
 		default:
-			makeSynchronizedRequests(request, hitsPerSecond)
+			request := requestStructure
+			request.RequestGroup = requestGroup
+
+			go makeSynchronizedRequests(request, totalHits, intervalBetweenRequests)
+
+			// This helps compensate for the time it takes to allocate related resources
+			// such as spinning up go routines and incrementing `requestGroup`.
+			// Otherwise, overtime this adds up, and equates to missing a group of requests.
+			time.Sleep(time.Second - intervalBetweenRequests)
+
+			requestGroup++
 		}
 	}
 }
