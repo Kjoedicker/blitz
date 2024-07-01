@@ -1,7 +1,7 @@
 package main
 
 import (
-	"math"
+	"errors"
 	"time"
 )
 
@@ -13,8 +13,17 @@ func timer() func() float64 {
 	}
 }
 
-func HitsPer(totalRequests int, interval int) (HitsPer int) {
-	return int(math.Round(float64(totalRequests) / float64(interval)))
+// Calculates the interval needed to achieve a certain
+// number of requests per unit of time (second or minute).
+func CalculateIntervalBetweenRequests(requestsPerInterval int, unit string) (time.Duration, error) {
+	switch unit {
+	case "second":
+		return time.Second / time.Duration(requestsPerInterval), nil
+	case "minute":
+		return time.Minute / time.Duration(requestsPerInterval), nil
+	default:
+		return 0, errors.New("invalid unit, must be 'second' or 'minute'")
+	}
 }
 
 func MinutesToSeconds(minutes int) int {
