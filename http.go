@@ -57,11 +57,16 @@ func (request *Request) Call() (*http.Response, error) {
 	res, err := client.Do(&request.Request)
 	request.ResponseTime = stop()
 
-	defer res.Body.Close()
 	if err != nil {
+		// TODO: figure out how to handle errors in the test plan
+		// We have to assume this is related to the target server
+		// not being able to keep up with the tps.
 		log.Println(err)
 		return nil, err
 	}
+	// The close is done after `err` is evaluated on purpose.
+	// There is nothing left to close if an error occured.
+	defer res.Body.Close()
 
 	return res, nil
 }
