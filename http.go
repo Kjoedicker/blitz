@@ -57,11 +57,11 @@ func (request *Request) Call() (*http.Response, error) {
 	res, err := client.Do(&request.Request)
 	request.ResponseTime = stop()
 
+	defer res.Body.Close()
 	if err != nil {
 		log.Println(err)
 		return nil, err
 	}
-	defer res.Body.Close()
 
 	return res, nil
 }
