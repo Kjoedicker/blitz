@@ -1,9 +1,8 @@
-package main
+package plan
 
 import (
 	"fmt"
 	"log"
-	"net/url"
 	"os"
 
 	"gopkg.in/yaml.v3"
@@ -19,7 +18,7 @@ type Target struct {
 	Duration    int                 `yaml:"duration"`
 }
 
-type TestPlan struct {
+type Plan struct {
 	Host    string   `yaml:"host"`
 	Targets []Target `yaml:"Targets"`
 }
@@ -29,42 +28,18 @@ func (target Target) PrintDetails() {
 	fmt.Printf("%d requests every %s for %d minutes\n", target.Hits, target.Interval, target.Duration)
 }
 
-func LoadTestPlan(filePath string) TestPlan {
-	testPlan := &TestPlan{}
+func Load(filePath string) Plan {
+	plan := &Plan{}
 
-	testPlanFile, err := os.ReadFile(filePath)
+	planFile, err := os.ReadFile(filePath)
 	if err != nil {
 		log.Fatalf("os.ReadFile %v ", err)
 	}
 
-	err = yaml.Unmarshal(testPlanFile, testPlan)
+	err = yaml.Unmarshal(planFile, plan)
 	if err != nil {
 		log.Fatalf("Unmarshal: %v", err)
 	}
 
-	return *testPlan
-}
-
-func (testPlan TestPlan) Begin() {
-	for _, target := range testPlan.Targets {
-		target.PrintDetails()
-
-		rawUrl, err := url.JoinPath(testPlan.Host, target.Path)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		request := Request{
-			Method:  target.Method,
-			Headers: target.Headers,
-			rawUrl:  rawUrl,
-		}.Init()
-
-		intervalBetweenRequests, err := CalculateIntervalBetweenRequests(target.Hits, target.Interval)
-		if err != nil {
-			panic(err)
-		}
-
-		MakeRequestsForDuration(request, target.Hits, intervalBetweenRequests, target.Duration)
-	}
+	return *plan
 }

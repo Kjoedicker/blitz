@@ -1,0 +1,112 @@
+package request
+
+import (
+	"fmt"
+	"log"
+	"net/http"
+	"net/url"
+	"sync"
+	"time"
+
+	"github.com/Kjoedicker/blitz/plan"
+	"github.com/Kjoedicker/blitz/timing"
+)
+
+type Request struct {
+	Request http.Request
+
+	Hits     int
+	Duration time.Duration
+	Interval time.Duration
+
+	RequestGroup int
+	Number       int
+	ResponseTime float64
+}
+
+type Requests []Request
+
+func BuildCounter() func() int {
+	var totalRequests int
+	var mutex sync.Mutex
+
+	return func() int {
+		mutex.Lock()
+		defer mutex.Unlock()
+
+		totalRequests++
+		return totalRequests
+	}
+}
+
+var requestGroupCounter func() int = BuildCounter()
+
+func (requests Requests) PrintResults() {
+	requestGroup := requestGroupCounter()
+	for requestNumber, request := range requests {
+		if requestNumber == 0 {
+			fmt.Println("\nRequest group:", requestGroup)
+		}
+		request.PrintResult(requestNumber + 1)
+	}
+}
+
+func (request Request) PrintResult(requestNumber int) {
+	fmt.Printf("Request %d: %f seconds \n", requestNumber, request.ResponseTime)
+}
+
+// This is shared so connections can
+// be reused thanks to internal caching
+var client = http.Client{}
+
+func Call(request *Request) (*http.Response, error) {
+
+	stop := timing.BuildTimer()
+	res, err := client.Do(&request.Request)
+	request.ResponseTime = stop()
+
+	if err != nil {
+		// TODO: figure out how to handle errors in the test plan
+		// We have to assume this is related to the target server
+		// not being able to keep up with the tps.
+		log.Println(err)
+		return nil, err
+	}
+	// The close is done after `err` is evaluated on purpose.
+	// There is nothing left to close if an error occured.
+	defer res.Body.Close()
+
+	return res, nil
+}
+
+func buildUrl(host string, path string) *url.URL {
+	rawUrl, err := url.JoinPath(host, path)
+	if err != nil {
+		log.Fatal(err)
+	}
+	url, err := url.Parse(rawUrl)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return url
+}
+
+func BuildRequests(plan plan.Plan) map[int]Request {
+	targetRequests := make(map[int]Request)
+
+	for targetNumber, target := range plan.Targets {
+
+		targetRequests[targetNumber] = Request{
+			Hits:     target.Hits,
+			Duration: timing.IntToMinuteDuration(target.Duration),
+			Interval: timing.CalculateIntervalBetweenRequests(target.Hits, target.Interval),
+			Request: http.Request{
+				Method: target.Method,
+				URL:    buildUrl(plan.Host, target.Path),
+				Header: target.Headers,
+			},
+		}
+	}
+
+	return targetRequests
+}
