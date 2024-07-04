@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/Kjoedicker/blitz/cli"
 	"github.com/Kjoedicker/blitz/logo"
 	"github.com/Kjoedicker/blitz/plan"
@@ -13,7 +15,8 @@ func main() {
 	testPlan := plan.Load(planFilePath)
 	requests := request.BuildRequests(testPlan)
 
-	for _, requestPrototype := range requests {
+	for index, requestPrototype := range requests {
+		fmt.Printf("Executing test plan: %d", index+1)
 		Execute(requestPrototype)
 	}
 }
