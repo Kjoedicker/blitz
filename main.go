@@ -11,12 +11,16 @@ import (
 
 func main() {
 	logo.Print()
+
 	planFilePath := cli.ParseTestPlanPath()
 	testPlan := plan.Load(planFilePath)
-	requests := request.BuildRequests(testPlan)
+	requestPrototypes := request.BuildRequestPrototypes(testPlan)
 
-	for index, requestPrototype := range requests {
+	for index := 0; index < len(requestPrototypes); index++ {
+		requestPrototype := requestPrototypes[index]
+
 		fmt.Printf("Executing test plan: %d", index+1)
+
 		Execute(requestPrototype)
 	}
 }

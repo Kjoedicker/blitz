@@ -97,7 +97,7 @@ func buildUrl(host string, path string) *url.URL {
 	return url
 }
 
-func BuildRequests(plan plan.Plan) map[int]Request {
+func BuildRequestPrototypes(plan plan.Plan) map[int]Request {
 	targetRequests := make(map[int]Request)
 
 	for targetNumber, target := range plan.Targets {
