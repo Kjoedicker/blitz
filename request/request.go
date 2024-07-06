@@ -19,9 +19,10 @@ type Request struct {
 	Duration time.Duration
 	Interval time.Duration
 
-	RequestGroup int
-	Number       int
-	ResponseTime float64
+	RequestGroup  int
+	RequestNumber int
+	ResponseTime  float64
+	ErrorResponse error
 }
 
 type Requests []Request
@@ -39,25 +40,32 @@ func BuildCounter() func() int {
 	}
 }
 
-var requestGroupCounter func() int = BuildCounter()
-
 func (requests Requests) PrintResults() {
-	requestGroup := requestGroupCounter()
-	for requestNumber, request := range requests {
-		if requestNumber == 0 {
-			fmt.Println("\nRequest group:", requestGroup)
-		}
-		request.PrintResult(requestNumber + 1)
+	for _, request := range requests {
+		request.PrintResult()
 	}
 }
 
-func (request Request) PrintResult(requestNumber int) {
-	fmt.Printf("Request %d: %f seconds \n", requestNumber, request.ResponseTime)
+func (request Request) PrintResult() {
+	fmt.Printf(
+		"Request Group: %d Request Number %d Response Time: %f Errors: %v \n",
+		request.RequestGroup,
+		request.RequestNumber,
+		request.ResponseTime,
+		request.ErrorResponse,
+	)
 }
 
 // This is shared so connections can
 // be reused thanks to internal caching
-var client = http.Client{}
+var client = http.Client{
+	Transport: &http.Transport{
+		MaxIdleConns:        100,
+		IdleConnTimeout:     30 * time.Second,
+		DisableKeepAlives:   false,
+		MaxIdleConnsPerHost: 100,
+	},
+}
 
 func Call(request *Request) (*http.Response, error) {
 
@@ -66,12 +74,10 @@ func Call(request *Request) (*http.Response, error) {
 	request.ResponseTime = stop()
 
 	if err != nil {
-		// TODO: figure out how to handle errors in the test plan
-		// We have to assume this is related to the target server
-		// not being able to keep up with the tps.
-		log.Println(err)
+		request.ErrorResponse = err
 		return nil, err
 	}
+
 	// The close is done after `err` is evaluated on purpose.
 	// There is nothing left to close if an error occured.
 	defer res.Body.Close()
@@ -91,7 +97,7 @@ func buildUrl(host string, path string) *url.URL {
 	return url
 }
 
-func BuildRequests(plan plan.Plan) map[int]Request {
+func BuildRequestPrototypes(plan plan.Plan) map[int]Request {
 	targetRequests := make(map[int]Request)
 
 	for targetNumber, target := range plan.Targets {
