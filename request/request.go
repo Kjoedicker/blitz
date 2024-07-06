@@ -20,7 +20,7 @@ type Request struct {
 	Interval time.Duration
 
 	RequestGroup  int
-	Number        int
+	RequestNumber int
 	ResponseTime  float64
 	ErrorResponse error
 }
@@ -40,15 +40,9 @@ func BuildCounter() func() int {
 	}
 }
 
-var requestGroupCounter func() int = BuildCounter()
-
 func (requests Requests) PrintResults() {
-	requestGroup := requestGroupCounter()
-	for requestNumber, request := range requests {
-		if requestNumber == 0 {
-			fmt.Println("\nRequest group:", requestGroup)
-		}
-		request.PrintResult(requestNumber + 1)
+	for _, request := range requests {
+		request.PrintResult()
 	}
 }
 
