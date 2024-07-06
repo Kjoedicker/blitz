@@ -19,9 +19,10 @@ type Request struct {
 	Duration time.Duration
 	Interval time.Duration
 
-	RequestGroup int
-	Number       int
-	ResponseTime float64
+	RequestGroup  int
+	Number        int
+	ResponseTime  float64
+	ErrorResponse error
 }
 
 type Requests []Request
@@ -66,12 +67,10 @@ func Call(request *Request) (*http.Response, error) {
 	request.ResponseTime = stop()
 
 	if err != nil {
-		// TODO: figure out how to handle errors in the test plan
-		// We have to assume this is related to the target server
-		// not being able to keep up with the tps.
-		log.Println(err)
+		request.ErrorResponse = err
 		return nil, err
 	}
+
 	// The close is done after `err` is evaluated on purpose.
 	// There is nothing left to close if an error occured.
 	defer res.Body.Close()
