@@ -46,8 +46,14 @@ func (requests Requests) PrintResults() {
 	}
 }
 
-func (request Request) PrintResult(requestNumber int) {
-	fmt.Printf("Request %d: %f seconds \n", requestNumber, request.ResponseTime)
+func (request Request) PrintResult() {
+	fmt.Printf(
+		"Request Group: %d Request Number %d Response Time: %f Errors: %v \n",
+		request.RequestGroup,
+		request.RequestNumber,
+		request.ResponseTime,
+		request.ErrorResponse,
+	)
 }
 
 // This is shared so connections can
