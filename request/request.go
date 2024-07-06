@@ -58,7 +58,14 @@ func (request Request) PrintResult(requestNumber int) {
 
 // This is shared so connections can
 // be reused thanks to internal caching
-var client = http.Client{}
+var client = http.Client{
+	Transport: &http.Transport{
+		MaxIdleConns:        100,
+		IdleConnTimeout:     30 * time.Second,
+		DisableKeepAlives:   false,
+		MaxIdleConnsPerHost: 100,
+	},
+}
 
 func Call(request *Request) (*http.Response, error) {
 
