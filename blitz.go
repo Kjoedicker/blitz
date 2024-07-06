@@ -30,9 +30,9 @@ func executeSynchronizedRequests(requestPrototype request.Request) {
 				defer queue.Done()
 
 				requestClone := requestPrototype
-				requestNumber := returnRequestNumber()
+				requestClone.RequestNumber = returnRequestNumber()
 
-				maxRequestsForIntervalReached := requestNumber >= requestPrototype.Hits+1
+				maxRequestsForIntervalReached := requestClone.RequestNumber >= requestPrototype.Hits+1
 				if maxRequestsForIntervalReached {
 					stopMakingRequests <- true
 					return
@@ -42,13 +42,15 @@ func executeSynchronizedRequests(requestPrototype request.Request) {
 
 				// This stores the request context at the index of when it was called.
 				// This is useful for later printing the details of the request.
-				requests[requestNumber-1] = requestClone
+				requests[requestClone.RequestNumber-1] = requestClone
 			}()
 		}
 	}
 }
 
 func Execute(requestPrototype request.Request) {
+
+	returnGroupNumber := request.BuildCounter()
 
 	done := make(timing.TimedChannel)
 	go done.After(requestPrototype.Duration)
@@ -58,6 +60,8 @@ func Execute(requestPrototype request.Request) {
 		case <-done:
 			return
 		default:
+			requestPrototype.RequestGroup = returnGroupNumber()
+
 			go executeSynchronizedRequests(requestPrototype)
 
 			// This helps compensate for the time it takes to allocate related resources
