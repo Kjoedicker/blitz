@@ -24,8 +24,8 @@ type Plan struct {
 }
 
 func (target Target) PrintDetails() {
-	fmt.Println("\nScenario: " + target.Description)
-	fmt.Printf("%d requests every %s for %d minutes\n", target.Hits, target.Interval, target.Duration)
+	fmt.Fprintf(os.Stderr, "\nScenario: "+target.Description)
+	fmt.Fprintf(os.Stderr, "%d requests every %s for %d minutes\n", target.Hits, target.Interval, target.Duration)
 }
 
 func Load(filePath string) Plan {

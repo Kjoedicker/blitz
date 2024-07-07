@@ -1,6 +1,9 @@
 package logo
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+)
 
 func Print() {
 	blitzLogo := `
@@ -15,6 +18,5 @@ func Print() {
  ░         ░  ░░           ░ ░    
 	  ░                  ░        
 `
-
-	fmt.Println(blitzLogo)
+	fmt.Fprintf(os.Stderr, blitzLogo)
 }
