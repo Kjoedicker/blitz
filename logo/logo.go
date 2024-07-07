@@ -20,3 +20,7 @@ func Print() {
 `
 	fmt.Fprintf(os.Stderr, blitzLogo)
 }
+
+func init() {
+	Print()
+}
