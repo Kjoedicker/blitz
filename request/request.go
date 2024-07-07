@@ -8,6 +8,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/Kjoedicker/blitz/cli"
 	"github.com/Kjoedicker/blitz/plan"
 	"github.com/Kjoedicker/blitz/timing"
 )
@@ -19,10 +20,11 @@ type Request struct {
 	Duration time.Duration
 	Interval time.Duration
 
-	RequestGroup  int
-	RequestNumber int
-	ResponseTime  float64
-	ErrorResponse error
+	TestPlanNumber int
+	RequestGroup   int
+	RequestNumber  int
+	ResponseTime   float64
+	ErrorResponse  error
 }
 
 type Requests []Request
@@ -42,13 +44,34 @@ func BuildCounter() func() int {
 
 func (requests Requests) PrintResults() {
 	for _, request := range requests {
-		request.PrintResult()
+		switch cli.PrintResultFormat {
+		case "text":
+			request.PrintResult()
+		default:
+			request.PrintResultCSV()
+		}
 	}
 }
 
 func (request Request) PrintResult() {
 	fmt.Printf(
-		"Request Group: %d Request Number %d Response Time: %f Errors: %v \n",
+		"Test Plan Number: %d "+
+			"Request Group: %d "+
+			"Request Number %d "+
+			"Response Time: %f "+
+			"Errors: %v \n",
+		request.TestPlanNumber,
+		request.RequestGroup,
+		request.RequestNumber,
+		request.ResponseTime,
+		request.ErrorResponse,
+	)
+}
+
+func (request Request) PrintResultCSV() {
+	fmt.Printf(
+		"%d,%d,%d,%f,%v\n",
+		request.TestPlanNumber,
 		request.RequestGroup,
 		request.RequestNumber,
 		request.ResponseTime,
