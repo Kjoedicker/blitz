@@ -1,14 +1,12 @@
 package request
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"net/url"
 	"sync"
 	"time"
 
-	"github.com/Kjoedicker/blitz/cli"
 	"github.com/Kjoedicker/blitz/plan"
 	"github.com/Kjoedicker/blitz/timing"
 )
@@ -40,43 +38,6 @@ func BuildCounter() func() int {
 		totalRequests++
 		return totalRequests
 	}
-}
-
-func (requests Requests) PrintResults() {
-	for _, request := range requests {
-		switch cli.PrintResultFormat {
-		case "text":
-			request.PrintResult()
-		default:
-			request.PrintResultCSV()
-		}
-	}
-}
-
-func (request Request) PrintResult() {
-	fmt.Printf(
-		"Test Plan Number: %d "+
-			"Request Group: %d "+
-			"Request Number %d "+
-			"Response Time: %f "+
-			"Errors: %v \n",
-		request.TestPlanNumber,
-		request.RequestGroup,
-		request.RequestNumber,
-		request.ResponseTime,
-		request.ErrorResponse,
-	)
-}
-
-func (request Request) PrintResultCSV() {
-	fmt.Printf(
-		"%d,%d,%d,%f,%v\n",
-		request.TestPlanNumber,
-		request.RequestGroup,
-		request.RequestNumber,
-		request.ResponseTime,
-		request.ErrorResponse,
-	)
 }
 
 // This is shared so connections can

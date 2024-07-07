@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/Kjoedicker/blitz/request"
+	"github.com/Kjoedicker/blitz/results"
 	"github.com/Kjoedicker/blitz/timing"
 )
 
@@ -21,7 +22,7 @@ func executeSynchronizedRequests(requestPrototype request.Request) {
 		select {
 		case <-stopMakingRequests:
 			queue.Wait()
-			go requests.PrintResults()
+			go results.PrintAll(requests)
 			return
 		case <-ticker.C:
 			queue.Add(1)
