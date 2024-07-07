@@ -18,7 +18,7 @@ func Print() {
  ░         ░  ░░           ░ ░    
 	  ░                  ░        
 `
-	fmt.Fprintf(os.Stderr, blitzLogo)
+	fmt.Fprint(os.Stderr, blitzLogo)
 }
 
 func init() {
