@@ -3,6 +3,8 @@ package logo
 import (
 	"fmt"
 	"os"
+
+	"github.com/Kjoedicker/blitz/cli"
 )
 
 func Print() {
@@ -22,5 +24,7 @@ func Print() {
 }
 
 func init() {
-	Print()
+	if cli.PrintLogo {
+		Print()
+	}
 }
