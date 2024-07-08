@@ -8,11 +8,13 @@ import (
 const (
 	DEFAULT_FILE_PATH           = "./test-plan.yml"
 	DEFAULT_PRINT_RESULT_FORMAT = "csv"
+	DEFAULT_ENABLE_PRINT_LOGO   = true
 )
 
 var (
 	TestPlanFilePath  string
 	PrintResultFormat string
+	PrintLogo         bool
 )
 
 func parseFlags() {
@@ -28,6 +30,12 @@ func parseFlags() {
 		"format",
 		DEFAULT_PRINT_RESULT_FORMAT,
 		"The format the results are printed in. Defaults to: "+DEFAULT_PRINT_RESULT_FORMAT,
+	)
+	flag.BoolVar(
+		&PrintLogo,
+		"print-logo",
+		DEFAULT_ENABLE_PRINT_LOGO,
+		"Enable/Disable the printed logo. Defaults to: true",
 	)
 
 	// Parse flags
