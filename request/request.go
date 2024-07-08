@@ -28,8 +28,10 @@ type Request struct {
 type Requests []Request
 
 func BuildCounter() func() int {
-	var totalRequests int
-	var mutex sync.Mutex
+	var (
+		totalRequests int
+		mutex         sync.Mutex
+	)
 
 	return func() int {
 		mutex.Lock()

@@ -1,7 +1,6 @@
 package plan
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -21,11 +20,6 @@ type Target struct {
 type Plan struct {
 	Host    string   `yaml:"host"`
 	Targets []Target `yaml:"Targets"`
-}
-
-func (target Target) PrintDetails() {
-	fmt.Fprintf(os.Stderr, "\nScenario: "+target.Description)
-	fmt.Fprintf(os.Stderr, "%d requests every %s for %d minutes\n", target.Hits, target.Interval, target.Duration)
 }
 
 func Load(filePath string) Plan {
