@@ -1,8 +1,11 @@
 package plan
 
 import (
+	"fmt"
 	"log"
 	"os"
+	"reflect"
+	"strings"
 
 	"gopkg.in/yaml.v3"
 )
@@ -22,6 +25,37 @@ type Plan struct {
 	Targets []Target `yaml:"Targets"`
 }
 
+func validateRequiredField[T any](v T) bool {
+	var zero T // Create a default value of type T to check against
+	return !reflect.DeepEqual(v, zero)
+}
+
+func (plan *Plan) validate() {
+	for _, target := range plan.Targets {
+		fields := map[string]interface{}{
+			"Description": target.Description,
+			"Path":        target.Path,
+			"Method":      target.Method,
+			"Hits":        target.Hits,
+			"Interval":    target.Interval,
+			"Duration":    target.Duration,
+		}
+
+		var validationFailures []string
+
+		for fieldName, data := range fields {
+			valid := validateRequiredField(data)
+			if !valid {
+				validationFailures = append(validationFailures, fmt.Sprintf("Key: \"%s\" Value: %v \n", fieldName, data))
+			}
+		}
+
+		if len(validationFailures) > 0 {
+			log.Fatalf("Plan validation failed:\n\t%v", strings.Join(validationFailures, "\t"))
+		}
+	}
+}
+
 func Load(filePath string) Plan {
 	plan := &Plan{}
 
@@ -34,6 +68,8 @@ func Load(filePath string) Plan {
 	if err != nil {
 		log.Fatalf("Unmarshal: %v", err)
 	}
+
+	plan.validate()
 
 	return *plan
 }
