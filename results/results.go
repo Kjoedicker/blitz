@@ -59,9 +59,3 @@ func PrintCSVHeaders() {
 
 	fmt.Println(csvHeaders)
 }
-
-func init() {
-	if cli.PrintResultFormat == "csv" {
-		PrintCSVHeaders()
-	}
-}

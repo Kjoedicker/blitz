@@ -3,8 +3,6 @@ package logo
 import (
 	"fmt"
 	"os"
-
-	"github.com/Kjoedicker/blitz/cli"
 )
 
 func Print() {
@@ -21,10 +19,4 @@ func Print() {
 	  ░                  ░        
 `
 	fmt.Fprint(os.Stderr, blitzLogo)
-}
-
-func init() {
-	if cli.PrintLogo {
-		Print()
-	}
 }
