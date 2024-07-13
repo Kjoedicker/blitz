@@ -18,11 +18,11 @@ type Request struct {
 	Duration time.Duration
 	Interval time.Duration
 
-	TestPlanNumber int
-	RequestGroup   int
-	RequestNumber  int
-	ResponseTime   float64
-	ErrorResponse  error
+	TargetNumber  int
+	RequestGroup  int
+	RequestNumber int
+	ResponseTime  float64
+	ErrorResponse error
 }
 
 type Requests []Request
@@ -89,9 +89,10 @@ func BuildRequestPrototypes(plan plan.Plan) map[int]Request {
 	for targetNumber, target := range plan.Targets {
 
 		targetRequests[targetNumber] = Request{
-			Hits:     target.Hits,
-			Duration: timing.IntToMinuteDuration(target.Duration),
-			Interval: timing.CalculateIntervalBetweenRequests(target.Hits, target.Interval),
+			Hits:         target.Hits,
+			Duration:     timing.IntToMinuteDuration(target.Duration),
+			Interval:     timing.CalculateIntervalBetweenRequests(target.Hits, target.Interval),
+			TargetNumber: targetNumber,
 			Request: http.Request{
 				Method: target.Method,
 				URL:    buildUrl(plan.Host, target.Path),

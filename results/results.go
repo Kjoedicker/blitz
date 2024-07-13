@@ -26,7 +26,7 @@ func Print(request request.Request) {
 			"Request Number %d "+
 			"Response Time: %f "+
 			"Errors: %v \n",
-		request.TestPlanNumber,
+		request.TargetNumber,
 		request.RequestGroup,
 		request.RequestNumber,
 		request.ResponseTime,
@@ -37,7 +37,7 @@ func Print(request request.Request) {
 func PrintToCSV(request request.Request) {
 	fmt.Printf(
 		"%d,%d,%d,%f,%v\n",
-		request.TestPlanNumber,
+		request.TargetNumber,
 		request.RequestGroup,
 		request.RequestNumber,
 		request.ResponseTime,
@@ -48,7 +48,7 @@ func PrintToCSV(request request.Request) {
 func PrintCSVHeaders() {
 	csvHeaders := strings.Join(
 		[]string{
-			"test_plan_number",
+			"target_number",
 			"request_group",
 			"request_number",
 			"response_time",
