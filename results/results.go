@@ -2,60 +2,74 @@ package results
 
 import (
 	"fmt"
+	"reflect"
 	"strings"
 
 	"github.com/Kjoedicker/blitz/cli"
 	"github.com/Kjoedicker/blitz/request"
 )
 
+const (
+	FormatText = "text"
+	FormatCSV  = "csv"
+)
+
+func formatColumn(field string, value interface{}) string {
+	if cli.PrintResultFormat == FormatText {
+		return fmt.Sprintf("%s: %v", field, value)
+	}
+	return fmt.Sprintf("%v", value)
+}
+
+func getColumnDelimiter() string {
+	if cli.PrintResultFormat == FormatText {
+		return " "
+	}
+	return ","
+}
+
+func formatRequestColumns(requests request.Request) string {
+	var (
+		reqValues = reflect.ValueOf(requests)
+		reqType   = reqValues.Type()
+
+		columnDelimiter = getColumnDelimiter()
+		columns         = []string{}
+	)
+	for i := 0; i < reqValues.NumField(); i++ {
+		field := reqType.Field(i).Name
+		value := reqValues.Field(i)
+
+		if fields.IsPrintable(field) {
+			columns = append(columns, formatColumn(field, value))
+		}
+	}
+	return strings.Join(columns, columnDelimiter)
+}
+
+func Print(requests request.Request) {
+	rows := formatRequestColumns(requests)
+	fmt.Println(rows)
+}
+
 func PrintAll(requests request.Requests) {
 	for _, request := range requests {
-		switch cli.PrintResultFormat {
-		case "text":
-			Print(request)
-		default:
-			PrintToCSV(request)
-		}
+		Print(request)
 	}
 }
 
-func Print(request request.Request) {
-	fmt.Printf(
-		"Test Plan Number: %d "+
-			"Request Group: %d "+
-			"Request Number %d "+
-			"Response Time: %f "+
-			"Errors: %v \n",
-		request.TargetNumber,
-		request.RequestGroup,
-		request.RequestNumber,
-		request.ResponseTime,
-		request.ErrorResponse,
-	)
-}
-
-func PrintToCSV(request request.Request) {
-	fmt.Printf(
-		"%d,%d,%d,%f,%v\n",
-		request.TargetNumber,
-		request.RequestGroup,
-		request.RequestNumber,
-		request.ResponseTime,
-		request.ErrorResponse,
-	)
-}
-
 func PrintCSVHeaders() {
-	csvHeaders := strings.Join(
-		[]string{
-			"target_number",
-			"request_group",
-			"request_number",
-			"response_time",
-			"error_response",
-		},
-		",",
+	var (
+		headers     = []string{}
+		fieldValues = reflect.ValueOf(fields)
+		fieldType   = fieldValues.Type()
 	)
+	for i := 0; i < fieldValues.NumField(); i++ {
+		field := fieldType.Field(i).Name
 
-	fmt.Println(csvHeaders)
+		if fields.IsPrintable(field) {
+			headers = append(headers, fields.Header(field))
+		}
+	}
+	fmt.Println(strings.Join(headers, ","))
 }
