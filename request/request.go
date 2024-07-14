@@ -27,6 +27,27 @@ type Request struct {
 
 type Requests []Request
 
+func (requests Requests) CalculateAverageResponseTime() float64 {
+	totalRequests := float64(len(requests))
+
+	acc := 0.0
+	for _, request := range requests {
+		acc += request.ResponseTime
+	}
+
+	return acc / totalRequests
+}
+
+func (requests Requests) SumTotalErrors() int {
+	totalErrors := 0
+	for _, request := range requests {
+		if request.ErrorResponse != nil {
+			totalErrors++
+		}
+	}
+	return totalErrors
+}
+
 func BuildCounter() func() int {
 	var (
 		totalRequests int
