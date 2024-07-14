@@ -28,9 +28,9 @@ func getColumnDelimiter() string {
 	return ","
 }
 
-func formatRequestColumns(requests request.Request) string {
+func formatRequestColumns(request interface{}) string {
 	var (
-		reqValues = reflect.ValueOf(requests)
+		reqValues = reflect.ValueOf(request)
 		reqType   = reqValues.Type()
 
 		columnDelimiter = getColumnDelimiter()
@@ -47,8 +47,8 @@ func formatRequestColumns(requests request.Request) string {
 	return strings.Join(columns, columnDelimiter)
 }
 
-func Print(requests request.Request) {
-	rows := formatRequestColumns(requests)
+func Print(request request.Request) {
+	rows := formatRequestColumns(request)
 	fmt.Println(rows)
 }
 
