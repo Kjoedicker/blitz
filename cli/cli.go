@@ -6,15 +6,17 @@ import (
 )
 
 const (
-	DEFAULT_FILE_PATH           = "./test-plan.yml"
-	DEFAULT_PRINT_RESULT_FORMAT = "csv"
-	DEFAULT_ENABLE_PRINT_LOGO   = true
+	DEFAULT_FILE_PATH                   = "./test-plan.yml"
+	DEFAULT_PRINT_RESULT_FORMAT         = "csv"
+	DEFAULT_ENABLE_PRINT_LOGO           = true
+	DEFAULT_ENABLE_PRINT_REQUEST_NUMBER = false
 )
 
 var (
-	TestPlanFilePath  string
-	PrintResultFormat string
-	PrintLogo         bool
+	TestPlanFilePath   string
+	PrintResultFormat  string
+	PrintLogo          bool
+	PrintRequestNumber bool
 )
 
 func parseFlags() {
@@ -36,6 +38,12 @@ func parseFlags() {
 		"print-logo",
 		DEFAULT_ENABLE_PRINT_LOGO,
 		"Enable/Disable the printed logo. Defaults to: true",
+	)
+	flag.BoolVar(
+		&PrintRequestNumber,
+		"print-request-number",
+		DEFAULT_ENABLE_PRINT_REQUEST_NUMBER,
+		"Enable/Disable printing each request. The stops calculating the mean of all the requests in a group. Defaults to: false",
 	)
 
 	// Parse flags
