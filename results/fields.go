@@ -9,11 +9,13 @@ import (
 
 type Field map[string]interface{}
 type Fields struct {
-	TargetNumber  Field
-	RequestGroup  Field
-	RequestNumber Field
-	ResponseTime  Field
-	ErrorResponse Field
+	TargetNumber        Field
+	RequestGroup        Field
+	ResponseTimeAverage Field
+	TotalErrors         Field
+	RequestNumber       Field
+	ResponseTime        Field
+	ErrorResponse       Field
 }
 
 var fields = Fields{
@@ -22,19 +24,27 @@ var fields = Fields{
 		"header":    "target_number",
 	},
 	RequestNumber: Field{
-		"printable": cli.PrintRequestNumber,
+		"printable": !cli.AverageRequestResponseTimes,
 		"header":    "request_number",
 	},
 	RequestGroup: Field{
 		"printable": true,
 		"header":    "request_group",
 	},
+	ResponseTimeAverage: Field{
+		"printable": cli.AverageRequestResponseTimes,
+		"header":    "response_time_average",
+	},
+	TotalErrors: Field{
+		"printable": cli.AverageRequestResponseTimes,
+		"header":    "total_errors",
+	},
 	ResponseTime: Field{
-		"printable": true,
+		"printable": !cli.AverageRequestResponseTimes,
 		"header":    "response_time",
 	},
 	ErrorResponse: Field{
-		"printable": true,
+		"printable": !cli.AverageRequestResponseTimes,
 		"header":    "error_response",
 	},
 }

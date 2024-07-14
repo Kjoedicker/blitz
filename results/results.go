@@ -53,9 +53,29 @@ func Print(request request.Request) {
 }
 
 func PrintAll(requests request.Requests) {
-	for _, request := range requests {
-		Print(request)
+	switch cli.AverageRequestResponseTimes {
+	case true:
+		PrintAverage(requests)
+	default:
+		for _, request := range requests {
+			Print(request)
+		}
 	}
+}
+
+func PrintAverage(requests request.Requests) {
+	var (
+		request          = requests[0]
+		responseTimeMean = requests.CalculateAverageResponseTime()
+		totalErrors      = requests.SumTotalErrors()
+	)
+	fmt.Printf(
+		"%d,%d,%f,%d\n",
+		request.TargetNumber,
+		request.RequestGroup,
+		responseTimeMean,
+		totalErrors,
+	)
 }
 
 func PrintCSVHeaders() {
