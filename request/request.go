@@ -104,12 +104,12 @@ func buildUrl(host string, path string) *url.URL {
 	return url
 }
 
-func BuildRequestPrototypes(plan plan.Plan) map[int]Request {
-	targetRequests := make(map[int]Request)
+func BuildTargets(plan plan.Plan) Requests {
+	targets := Requests{}
 
 	for targetNumber, target := range plan.Targets {
 
-		targetRequests[targetNumber] = Request{
+		target := Request{
 			Hits:         target.Hits,
 			Duration:     timing.IntToMinuteDuration(target.Duration),
 			Interval:     timing.CalculateIntervalBetweenRequests(target.Hits, target.Interval),
@@ -120,7 +120,9 @@ func BuildRequestPrototypes(plan plan.Plan) map[int]Request {
 				Header: target.Headers,
 			},
 		}
+
+		targets = append(targets, target)
 	}
 
-	return targetRequests
+	return targets
 }

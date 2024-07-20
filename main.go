@@ -9,21 +9,17 @@ import (
 )
 
 var (
-	testPlan          plan.Plan
-	requestPrototypes map[int]request.Request
+	testPlan plan.Plan
+	targets  request.Requests
 )
 
 func main() {
-	for index := 0; index < len(requestPrototypes); index++ {
-		requestPrototype := requestPrototypes[index]
-
-		Execute(requestPrototype)
-	}
+	Setup(targets)
 }
 
 func init() {
 	testPlan = plan.Load(cli.TestPlanFilePath)
-	requestPrototypes = request.BuildRequestPrototypes(testPlan)
+	targets = request.BuildTargets(testPlan)
 
 	if cli.PrintLogo {
 		logo.Print()
