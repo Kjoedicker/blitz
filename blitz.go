@@ -9,31 +9,31 @@ import (
 	"github.com/Kjoedicker/blitz/timing"
 )
 
-func executeSynchronizedRequests(requestPrototype request.Request) {
+func trigger(target request.Request) {
 
 	queue := sync.WaitGroup{}
-	ticker := time.NewTicker(requestPrototype.Interval)
+	ticker := time.NewTicker(target.Interval)
 	stopMakingRequests := make(chan bool)
 
-	requests := make(request.Requests, requestPrototype.Hits)
+	requests := make(request.Requests, target.Hits)
 	returnRequestNumber := request.BuildCounter()
 
-	for {
+	for range ticker.C {
 		select {
 		case <-stopMakingRequests:
 			queue.Wait()
-			go results.PrintAll(requests)
+			results.PrintAll(requests)
 			return
-		case <-ticker.C:
+		default:
 			queue.Add(1)
 
 			go func() {
 				defer queue.Done()
 
-				requestClone := requestPrototype
+				requestClone := target
 				requestClone.RequestNumber = returnRequestNumber()
 
-				maxRequestsForIntervalReached := requestClone.RequestNumber >= requestPrototype.Hits+1
+				maxRequestsForIntervalReached := requestClone.RequestNumber >= target.Hits+1
 				if maxRequestsForIntervalReached {
 					stopMakingRequests <- true
 					return
@@ -49,26 +49,47 @@ func executeSynchronizedRequests(requestPrototype request.Request) {
 	}
 }
 
-func Execute(requestPrototype request.Request) {
+func Target(target request.Request) {
 
 	returnGroupNumber := request.BuildCounter()
 
 	done := make(timing.TimedChannel)
-	go done.After(requestPrototype.Duration)
+	go done.After(target.Duration)
 
+	var wg = sync.WaitGroup{}
 	for {
 		select {
 		case <-done:
+			wg.Wait()
 			return
 		default:
-			requestPrototype.RequestGroup = returnGroupNumber()
+			target.RequestGroup = returnGroupNumber()
 
-			go executeSynchronizedRequests(requestPrototype)
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				trigger(target)
+			}()
+
+			stop := timing.BuildTimer()
+			wg.Wait()
+
+			var (
+				waitTime   = time.Duration(stop())
+				blockTime  = time.Duration(time.Second - target.Interval)
+				totalSleep = blockTime - waitTime
+			)
 
 			// This helps compensate for the time it takes to allocate related resources
 			// such as spinning up go routines and incrementing `requestGroup`.
 			// Otherwise, overtime this adds up, and equates to missing a group of requests.
-			time.Sleep(time.Second - requestPrototype.Interval)
+			time.Sleep(totalSleep)
 		}
+	}
+}
+
+func Setup(targets request.Requests) {
+	for _, target := range targets {
+		Target(target)
 	}
 }
